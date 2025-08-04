@@ -101,14 +101,17 @@ Problem Statement & Solutions
 - pip (Python package manager)
 
 **Step 1: Clone Repository**
-\`\`\`bash
+To clone this repository to your local machine, use the following command:
+
+```bash
 git@github.com:aditya22101/Vehicle_Parking_ManagementSystem.git
-\`\`\`
+```
+
 
 **Step 2: Install Dependencies**
-\`\`\`
-pip install -r requirements.txt
-\`\`\`
+
+```bash pip install -r requirements.txt ```
+
 
 **Step 3: Database Setup**
 1. Install and start MySQL server
