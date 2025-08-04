@@ -4,6 +4,8 @@ Vehicle Parking Management System
 
 A comprehensive, production-ready parking management system built with Flask, MySQL, and Bootstrap featuring realistic billing, individual slot management, and intelligent booking lifecycle.
 
+For demo the click on the video link 
+```https://drive.google.com/file/d/1OAforYdSL_SccqpcICIeU_3qCl_nLQUA/view?usp=sharing```
 Problem Statement & Solutions
 
 **Core Problems Addressed**
