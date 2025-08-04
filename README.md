@@ -110,7 +110,7 @@ git@github.com:aditya22101/Vehicle_Parking_ManagementSystem.git
 
 **Step 2: Install Dependencies**
 
-```bash pip install -r requirements.txt ```
+```pip install -r requirements.txt ```
 
 
 **Step 3: Database Setup**
