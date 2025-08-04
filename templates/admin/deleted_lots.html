@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Deleted Parking Lots - Admin{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-trash-restore"></i> Deleted Parking Lots</h2>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    {% if deleted_lots %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> 
+                            These parking lots have been soft-deleted. You can restore them along with all their slots.
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Location</th>
+                                        <th>Total Slots</th>
+                                        <th>Price/Hour</th>
+                                        <th>Deleted Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for lot in deleted_lots %}
+                                    <tr class="table-secondary">
+                                        <td>{{ lot.id }}</td>
+                                        <td><del>{{ lot.name }}</del></td>
+                                        <td><del>{{ lot.location }}</del></td>
+                                        <td>{{ lot.total_slots }}</td>
+                                        <td>${{ "%.2f"|format(lot.price_per_hour) }}</td>
+                                        <td>{{ lot.deletion_date.strftime('%Y-%m-%d %H:%M') if lot.deletion_date else 'N/A' }}</td>
+                                        <td>
+                                            <a href="{{ url_for('restore_parking_lot', lot_id=lot.id) }}" 
+                                               class="btn btn-sm btn-success"
+                                               onclick="return confirm('Restore this parking lot and all its slots?')">
+                                                <i class="fas fa-undo"></i> Restore
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-trash fa-3x text-muted mb-3"></i>
+                            <h5>No Deleted Parking Lots</h5>
+                            <p class="text-muted">All parking lots are currently active.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

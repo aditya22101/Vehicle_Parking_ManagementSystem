@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}Parking Slots - {{ parking_lot.name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-parking"></i> {{ parking_lot.name }}</h2>
+                    <p class="text-muted">{{ parking_lot.location }}</p>
+                </div>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parking Lot Summary -->
+    <div class="row mb-4">
+        {% set total_active_slots = parking_slots | selectattr('deleted_at', 'none') | list | length %}
+        {% set available_slots = parking_slots | selectattr('status', 'equalto', 'vacant') | selectattr('deleted_at', 'none') | list | length %}
+        {% set occupied_slots = parking_slots | selectattr('status', 'equalto', 'booked') | selectattr('deleted_at', 'none') | list | length %}
+        {% set deleted_slots = parking_slots | selectattr('deleted_at') | list | length %}
+        
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h4>{{ total_active_slots }}</h4>
+                    <p class="mb-0">Active Slots</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h4>{{ available_slots }}</h4>
+                    <p class="mb-0">Available</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h4>{{ occupied_slots }}</h4>
+                    <p class="mb-0">Occupied</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark text-white">
+                <div class="card-body text-center">
+                    <h4>{{ deleted_slots }}</h4>
+                    <p class="mb-0">Deleted</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Legend:</h6>
+                    <span class="badge bg-success me-2">Vacant</span>
+                    <span class="badge bg-warning me-2">Occupied</span>
+                    <span class="badge bg-dark me-2">Deleted</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visual Slot Representation -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-th"></i> Parking Slots Visual Layout</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for slot in parking_slots %}
+                            <div class="col-md-2 col-sm-3 col-4 mb-3">
+                                <div class="card 
+                                    {% if slot.deleted_at %}bg-dark text-white
+                                    {% elif slot.status == 'vacant' %}bg-success text-white
+                                    {% elif slot.status == 'booked' %}bg-warning text-dark
+                                    {% endif %} position-relative">
+                                    <div class="card-body text-center p-2">
+                                        <i class="fas fa-car"></i><br>
+                                        <small>Slot {{ slot.slot_number }}</small>
+                                        {% if slot.status == 'booked' and slot.username %}
+                                            <br><small style="font-size: 0.7em;">{{ slot.username }}</small>
+                                        {% elif slot.deleted_at %}
+                                            <br><small style="font-size: 0.7em;">DELETED</small>
+                                        {% endif %}
+                                    </div>
+                                    <div class="position-absolute top-0 end-0">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-light dropdown-toggle" 
+                                                    type="button" data-bs-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                {% if slot.deleted_at %}
+                                                    <li>
+                                                        <a class="dropdown-item text-success" 
+                                                           href="{{ url_for('restore_parking_slot', slot_id=slot.id) }}"
+                                                           onclick="return confirm('Restore this slot?')">
+                                                            <i class="fas fa-undo"></i> Restore Slot
+                                                        </a>
+                                                    </li>
+                                                {% else %}
+                                                    {% if slot.status == 'booked' and slot.booking_id %}
+                                                        <li>
+                                                            <a class="dropdown-item text-danger" 
+                                                               href="{{ url_for('admin_cancel_booking', booking_id=slot.booking_id) }}"
+                                                               onclick="return confirm('Cancel this booking?')">
+                                                                <i class="fas fa-times"></i> Cancel Booking
+                                                            </a>
+                                                        </li>
+                                                    {% endif %}
+                                                    <li>
+                                                        <a class="dropdown-item text-danger" 
+                                                           href="{{ url_for('delete_parking_slot', slot_id=slot.id) }}"
+                                                           onclick="return confirm('Delete this slot permanently?')">
+                                                            <i class="fas fa-trash"></i> Delete Slot
+                                                        </a>
+                                                    </li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Currently Occupied Slots Details -->
+    {% set occupied_bookings = parking_slots | selectattr('status', 'equalto', 'booked') | selectattr('booking_id') | list %}
+    {% if occupied_bookings %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-users"></i> Currently Occupied Slots Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Slot #</th>
+                                    <th>Booking ID</th>
+                                    <th>User Details</th>
+                                    <th>Vehicle</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for slot in occupied_bookings %}
+                                <tr>
+                                    <td><strong>{{ slot.slot_number }}</strong></td>
+                                    <td>#{{ slot.booking_id }}</td>
+                                    <td>
+                                        <strong>{{ slot.username }}</strong><br>
+                                        <small class="text-muted">{{ slot.email }}</small><br>
+                                        <small class="text-muted">{{ slot.phone }}</small>
+                                    </td>
+                                    <td>
+                                        <strong>{{ slot.vehicle_number }}</strong><br>
+                                        <small class="text-muted">{{ slot.vehicle_type.title() if slot.vehicle_type else 'N/A' }}</small>
+                                    </td>
+                                    <td>{{ slot.start_time.strftime('%Y-%m-%d %H:%M') if slot.start_time else 'N/A' }}</td>
+                                    <td>
+                                        {{ slot.end_time.strftime('%Y-%m-%d %H:%M') if slot.end_time else 'N/A' }}
+                                        {% if slot.end_time and slot.end_time < now %}
+                                            <br><small class="text-danger">EXPIRED</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning">Occupied</span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('admin_cancel_booking', booking_id=slot.booking_id) }}" 
+                                           class="btn btn-sm btn-danger"
+                                           onclick="return confirm('Are you sure you want to cancel this booking?')">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-parking fa-3x text-success mb-3"></i>
+                    <h5>All Active Slots Available!</h5>
+                    <p class="text-muted">No active bookings for this parking lot.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

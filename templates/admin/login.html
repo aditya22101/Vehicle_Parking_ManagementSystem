@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login - Vehicle Parking App{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-center bg-warning">
+                    <h3><i class="fas fa-user-shield"></i> Admin Login</h3>
+                </div>
+                <div class="card-body">
+                    {% if session.logged_in %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>User Session Active!</strong><br>
+                            You are currently logged in as user {{ session.username }}. Please 
+                            <a href="{{ url_for('logout') }}" class="alert-link">logout from user account</a> 
+                            first to access admin panel.
+                        </div>
+                    {% elif session.admin_logged_in %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Already Logged In!</strong><br>
+                            You are already logged in as admin. 
+                            <a href="{{ url_for('admin_dashboard') }}" class="alert-link">Go to Dashboard</a>
+                        </div>
+                    {% else %}
+                        <form method="POST">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Admin Username</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Admin Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100">Login as Admin</button>
+                        </form>
+                        <div class="alert alert-info mt-3">
+                            <small><strong>Demo Credentials:</strong> Username: admin, Password: admin123</small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Vehicle Parking App{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3><i class="fas fa-sign-in-alt"></i> User Login</h3>
+                </div>
+                <div class="card-body">
+                    {% if session.admin_logged_in %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Admin Session Active!</strong><br>
+                            You are currently logged in as admin. Please 
+                            <a href="{{ url_for('admin_logout') }}" class="alert-link">logout from admin</a> 
+                            first to access user login.
+                        </div>
+                    {% elif session.logged_in %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Already Logged In!</strong><br>
+                            You are already logged in as {{ session.username }}. 
+                            <a href="{{ url_for('user_dashboard') }}" class="alert-link">Go to Dashboard</a>
+                        </div>
+                    {% else %}
+                        <form method="POST">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Login</button>
+                        </form>
+                        <div class="text-center mt-3">
+                            <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

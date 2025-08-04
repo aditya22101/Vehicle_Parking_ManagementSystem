@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Book Parking Slot{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-calendar-plus"></i> Book Parking Slot</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>{{ parking_lot.name }}</h5>
+                            <p><i class="fas fa-map-marker-alt"></i> {{ parking_lot.location }}</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div class="mb-2">
+                                <span class="badge bg-success">{{ available_slots|length }} slots available</span>
+                            </div>
+                            <div>
+                                <strong>${{ "%.2f"|format(parking_lot.price_per_hour) }}/hour</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if available_slots %}
+                        <!-- Available Slots Visual Display -->
+                        <div class="mb-4">
+                            <h6><i class="fas fa-th"></i> Available Slots (Click to Select)</h6>
+                            <div class="row">
+                                {% for slot in available_slots %}
+                                <div class="col-md-2 col-sm-3 col-4 mb-2">
+                                    <div class="card slot-card bg-success text-white text-center" 
+                                         style="cursor: pointer;" 
+                                         data-slot-id="{{ slot.id }}" 
+                                         data-slot-number="{{ slot.slot_number }}">
+                                        <div class="card-body p-2">
+                                            <i class="fas fa-car"></i><br>
+                                            <small>Slot {{ slot.slot_number }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <form method="POST" id="bookingForm">
+                            <input type="hidden" id="slot_id" name="slot_id" required>
+                            
+                            <div class="alert alert-info" id="selectedSlotInfo" style="display: none;">
+                                <strong>Selected Slot:</strong> <span id="selectedSlotNumber"></span>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="vehicle_number" class="form-label">Vehicle Number</label>
+                                    <input type="text" class="form-control" id="vehicle_number" name="vehicle_number" 
+                                           placeholder="e.g., ABC-1234" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="vehicle_type" class="form-label">Vehicle Type</label>
+                                    <select class="form-control" id="vehicle_type" name="vehicle_type" required>
+                                        <option value="">Select Vehicle Type</option>
+                                        <option value="car">Car</option>
+                                        <option value="motorcycle">Motorcycle</option>
+                                        <option value="truck">Truck</option>
+                                        <option value="van">Van</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="hours" class="form-label">Duration (Hours)</label>
+                                <input type="number" class="form-control" id="hours" name="hours" 
+                                       min="1" max="24" value="1" required>
+                                <div class="form-text">Maximum 24 hours per booking</div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="alert alert-info">
+                                    <strong>Estimated Cost:</strong> $<span id="total-cost">{{ "%.2f"|format(parking_lot.price_per_hour) }}</span>
+                                    <br><small class="text-muted">Final cost will be calculated based on actual usage time</small>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Back
+                                </a>
+                                <button type="submit" class="btn btn-success" id="confirmBtn" disabled>
+                                    <i class="fas fa-check"></i> Confirm Booking
+                                </button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-parking fa-3x text-muted mb-3"></i>
+                            <h5>No Available Slots</h5>
+                            <p class="text-muted">All parking slots are currently occupied.</p>
+                            <a href="{{ url_for('user_dashboard') }}" class="btn btn-primary">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.slot-card:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s;
+}
+.slot-card.selected {
+    background-color: #007bff !important;
+    border: 2px solid #0056b3;
+}
+</style>
+
+<script>
+let selectedSlotId = null;
+// Safely get the price from the server
+const pricePerHour = parseFloat('{{ parking_lot.price_per_hour }}');
+
+function selectSlot(slotId, slotNumber) {
+    // Remove previous selection
+    document.querySelectorAll('.slot-card').forEach(card => {
+        card.classList.remove('selected');
+        card.classList.add('bg-success');
+        card.classList.remove('bg-primary');
+    });
+    
+    // Select new slot
+    event.target.closest('.slot-card').classList.add('selected');
+    event.target.closest('.slot-card').classList.remove('bg-success');
+    event.target.closest('.slot-card').classList.add('bg-primary');
+    
+    // Update form
+    selectedSlotId = slotId;
+    document.getElementById('slot_id').value = slotId;
+    document.getElementById('selectedSlotNumber').textContent = slotNumber;
+    document.getElementById('selectedSlotInfo').style.display = 'block';
+    document.getElementById('confirmBtn').disabled = false;
+}
+
+// Add event delegation for slot selection
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle slot card clicks
+    document.addEventListener('click', function(e) {
+        const slotCard = e.target.closest('.slot-card');
+        if (slotCard) {
+            const slotId = parseInt(slotCard.dataset.slotId);
+            const slotNumber = parseInt(slotCard.dataset.slotNumber);
+            selectSlot(slotId, slotNumber);
+        }
+    });
+    
+    // Initialize the cost display
+    const initialHours = document.getElementById('hours').value || 1;
+    const initialCost = (initialHours * pricePerHour).toFixed(2);
+    document.getElementById('total-cost').textContent = initialCost;
+});
+
+document.getElementById('hours').addEventListener('input', function() {
+    const hours = parseFloat(this.value) || 1;
+    const totalCost = (hours * pricePerHour).toFixed(2);
+    document.getElementById('total-cost').textContent = totalCost;
+});
+</script>
+{% endblock %}

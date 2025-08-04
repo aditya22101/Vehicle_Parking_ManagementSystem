@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}My Bookings{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-calendar-alt"></i> My Bookings</h2>
+            <p class="text-muted">View and manage your parking bookings</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    {% if bookings %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Booking ID</th>
+                                        <th>Parking Lot</th>
+                                        <th>Slot</th>
+                                        <th>Vehicle</th>
+                                        <th>Duration</th>
+                                        <th>Cost</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in bookings %}
+                                    <tr>
+                                        <td><strong>#{{ booking.id }}</strong></td>
+                                        <td>
+                                            <strong>{{ booking.parking_lot_name }}</strong><br>
+                                            <small class="text-muted">{{ booking.location }}</small>
+                                        </td>
+                                        <td>
+                                            {% if booking.slot_number %}
+                                                <span class="badge bg-info">Slot {{ booking.slot_number }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <strong>{{ booking.vehicle_number }}</strong><br>
+                                            <small class="text-muted">{{ booking.vehicle_type.title() }}</small>
+                                        </td>
+                                        <td>
+                                            <small>Booked:</small> {{ booking.start_time.strftime('%Y-%m-%d %H:%M') }}<br>
+                                            <small>Until:</small> {{ booking.end_time.strftime('%Y-%m-%d %H:%M') }}
+                                            {% if booking.actual_end_time %}
+                                                <br><small class="text-success">Ended:</small> {{ booking.actual_end_time.strftime('%Y-%m-%d %H:%M') }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if booking.status == 'active' %}
+                                                <small>Estimated:</small> ${{ "%.2f"|format(booking.estimated_cost) }}
+                                            {% elif booking.actual_cost %}
+                                                <strong>${{ "%.2f"|format(booking.actual_cost) }}</strong>
+                                                {% if booking.estimated_cost != booking.actual_cost %}
+                                                    <br><small class="text-muted">Est: ${{ "%.2f"|format(booking.estimated_cost) }}</small>
+                                                {% endif %}
+                                            {% else %}
+                                                ${{ "%.2f"|format(booking.estimated_cost) }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if booking.status == 'active' %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% elif booking.status == 'completed' %}
+                                                <span class="badge bg-primary">Completed</span>
+                                            {% elif booking.status == 'cancelled' %}
+                                                <span class="badge bg-danger">Cancelled</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if booking.status == 'active' %}
+                                                <a href="{{ url_for('cancel_booking', booking_id=booking.id) }}" 
+                                                   class="btn btn-sm btn-danger"
+                                                   onclick="return confirm('Are you sure you want to cancel this booking? You may be charged for time already used.')">
+                                                    <i class="fas fa-times"></i> Cancel
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">No actions</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Summary -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6>Booking Summary</h6>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <strong>Active:</strong> 
+                                                {{ bookings | selectattr('status', 'equalto', 'active') | list | length }}
+                                            </div>
+                                            <div class="col-md-3">
+                                                <strong>Completed:</strong> 
+                                                {{ bookings | selectattr('status', 'equalto', 'completed') | list | length }}
+                                            </div>
+                                            <div class="col-md-3">
+                                                <strong>Cancelled:</strong> 
+                                                {{ bookings | selectattr('status', 'equalto', 'cancelled') | list | length }}
+                                            </div>
+                                            <div class="col-md-3">
+                                                <strong>Total Spent:</strong> 
+                                                ${{ "%.2f"|format(bookings | selectattr('actual_cost') | map(attribute='actual_cost') | sum) }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+                            <h5>No bookings found</h5>
+                            <p class="text-muted">You haven't made any parking bookings yet.</p>
+                            <a href="{{ url_for('user_dashboard') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Book a Parking Slot
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

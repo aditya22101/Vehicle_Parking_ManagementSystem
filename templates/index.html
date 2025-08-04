@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 mb-4">Welcome to ParkEasy</h1>
+        <p class="lead mb-4">Find and book parking slots easily and conveniently</p>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ url_for('register') }}" class="btn btn-light btn-lg w-100">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg w-100">
+                            <i class="fas fa-sign-in-alt"></i> User Login
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ url_for('admin_login') }}" class="btn btn-warning btn-lg w-100">
+                            <i class="fas fa-user-shield"></i> Admin
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Find Parking</h5>
+                    <p class="card-text">Search and find available parking slots near your location.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-calendar-check fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Book Instantly</h5>
+                    <p class="card-text">Reserve your parking slot instantly with just a few clicks.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-mobile-alt fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">Manage Bookings</h5>
+                    <p class="card-text">View and manage all your parking bookings in one place.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
