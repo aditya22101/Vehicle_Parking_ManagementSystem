@@ -1,0 +1,20 @@
+# Force all .js files to be recognized as JavaScript
+*.js linguist-language=JavaScript
+
+# Ignore specific folders (like vendor or assets)
+/vendor/* linguist-vendored
+/assets/* linguist-documentation
+# Force language detection
+*.html linguist-language=HTML
+*.css linguist-language=CSS
+*.js linguist-language=JavaScript
+*.py linguist-language=Python
+
+# Ignore vendor & build folders (don’t count them in language stats)
+vendor/* linguist-vendored
+node_modules/* linguist-vendored
+dist/* linguist-vendored
+
+# Mark documentation so it doesn’t affect language stats
+docs/* linguist-documentation
+*.md linguist-documentation
