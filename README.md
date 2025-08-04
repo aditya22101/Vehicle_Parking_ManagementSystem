@@ -102,12 +102,11 @@ Problem Statement & Solutions
 
 **Step 1: Clone Repository**
 \`\`\`bash
-git clone <repository-url>
-cd vehicle-parking-app
+git clonegit@github.com:aditya22101/Vehicle_Parking_ManagementSystem.git
 \`\`\`
 
 **Step 2: Install Dependencies**
-\`\`\`bash
+\`\`\`
 pip install -r requirements.txt
 \`\`\`
 
