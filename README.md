@@ -101,7 +101,7 @@ Problem Statement & Solutions
 - pip (Python package manager)
 
 **Step 1: Clone Repository**
-\`\`\`bash
+\`\`\`
 git clonegit@github.com:aditya22101/Vehicle_Parking_ManagementSystem.git
 \`\`\`
 
